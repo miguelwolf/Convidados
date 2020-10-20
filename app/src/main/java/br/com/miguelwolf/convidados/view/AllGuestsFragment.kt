@@ -40,6 +40,11 @@ class AllGuestsFragment : Fragment() {
         return root
     }
 
+    override fun onResume() {
+        super.onResume()
+        allGuestsViewModel.load()
+    }
+
     private fun observer() {
         allGuestsViewModel.guestList.observe(viewLifecycleOwner, Observer {
             mAdapter.updateGuests(it)
