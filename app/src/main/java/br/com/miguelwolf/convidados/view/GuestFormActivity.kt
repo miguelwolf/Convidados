@@ -8,11 +8,13 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import br.com.miguelwolf.convidados.viewmodel.GuestFormViewModel
 import br.com.miguelwolf.convidados.R
+import br.com.miguelwolf.convidados.service.constants.GuestConstants
 import kotlinx.android.synthetic.main.activity_guest_form.*
 
 class GuestFormActivity : AppCompatActivity(), View.OnClickListener {
 
     private lateinit var mViewModel: GuestFormViewModel
+    private var mGuestId: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,6 +24,9 @@ class GuestFormActivity : AppCompatActivity(), View.OnClickListener {
 
         setListeners()
         observe()
+        loadData()
+
+        radiobutton_present.isChecked = true
     }
 
     override fun onClick(v: View) {
@@ -33,14 +38,21 @@ class GuestFormActivity : AppCompatActivity(), View.OnClickListener {
             val name = edittext_name.text.toString()
             val presence = radiobutton_present.isChecked
 
-            mViewModel.save(name, presence)
-
+            mViewModel.save(mGuestId, name, presence)
         }
 
     }
 
     private fun setListeners() {
         button_save.setOnClickListener(this)
+    }
+
+    private fun loadData(){
+        val bundle = intent.extras
+        if (bundle != null) {
+            mGuestId = bundle.getInt(GuestConstants.GUESTID)
+            mViewModel.load(mGuestId)
+        }
     }
 
     private fun observe() {
@@ -52,6 +64,16 @@ class GuestFormActivity : AppCompatActivity(), View.OnClickListener {
             }
             finish()
         })
+
+        mViewModel.guest.observe(this, Observer {
+            edittext_name.setText(it.name)
+            if (it.presence) {
+                radiobutton_present.isChecked = true
+            } else {
+                radiobutton_absent.isChecked = true
+            }
+        })
+
     }
 
 
